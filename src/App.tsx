@@ -1,26 +1,42 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { FC, useState } from "react";
+import "./App.css";
+import ReactPlayer from "react-player";
+import Banner from "./components/Banner/Banner";
+import LeftPanel from "./components/LeftPanel/LeftPanel";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+import config from "./store";
+import { observer } from "mobx-react-lite";
+
+const App: FC = observer(() => {
+    const [isPlayerReady, setIsPlayerReady] = useState<boolean>(false);
+
+    const handler = (typeOfEvent: string) => {
+        typeOfEvent == "play" ? config.play() : config.pause();
+    };
+
+    return (
+        <div className='App'>
+            <ReactPlayer
+                controls
+                playing={config.isPlaying}
+                url={"https://www.youtube.com/watch?v=zqLEO5tIuYs"}
+                width={"100%"}
+                height={"100%"}
+                onPlay={() => {
+                    handler("play");
+                    if (isPlayerReady) {
+                        setTimeout(() => {
+                            config.showBanner();
+                        }, 5000);
+                    }
+                }}
+                onPause={() => handler("pause")}
+                onReady={() => setIsPlayerReady(true)}
+            />
+            <Banner show={config.isShowBanner} />
+            <LeftPanel show={config.isShowContent}></LeftPanel>
+        </div>
+    );
+});
 
 export default App;
